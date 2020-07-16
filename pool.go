@@ -71,6 +71,7 @@ func (p *Pool) Put(elem interface{}) {
 }
 
 func (p *Pool) ReleaseAll() {
+    close(p.items)
     for item := range p.items {
         if p.deleter != nil {
             p.deleter(item.elem)
