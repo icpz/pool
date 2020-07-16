@@ -2,11 +2,17 @@ package pool
 
 import (
     "context"
+    "reflect"
     "testing"
     "time"
-
-    "github.com/stretchr/testify/assert"
 )
+
+func assertEqual(t *testing.T, a interface{}, b interface{}) {
+    if a == b {
+        return
+    }
+    t.Fatalf("Received %v (type %v), expected %v (type %v)", a, reflect.TypeOf(a), b, reflect.TypeOf(b))
+}
 
 func metaFactory() Factory {
     initial := -1
@@ -20,13 +26,13 @@ func TestPool_Basic(t *testing.T) {
     g := metaFactory()
     pool := New(g)
 
-    assert.Equal(t, 0, pool.Len())
+    assertEqual(t, 0, pool.Len())
     elm := pool.Get()
-    assert.Equal(t, 0, elm.(int))
+    assertEqual(t, 0, elm.(int))
     pool.Put(elm)
-    assert.Equal(t, 1, pool.Len())
-    assert.Equal(t, 0, pool.Get().(int))
-    assert.Equal(t, 1, pool.Get().(int))
+    assertEqual(t, 1, pool.Len())
+    assertEqual(t, 0, pool.Get().(int))
+    assertEqual(t, 1, pool.Get().(int))
 }
 
 func TestPool_Capacity(t *testing.T) {
@@ -34,7 +40,7 @@ func TestPool_Capacity(t *testing.T) {
     size := 5
     pool := New(g, OptCapacity(size))
 
-    assert.Equal(t, size, pool.Cap())
+    assertEqual(t, size, pool.Cap())
 
     items := []interface{}{}
 
@@ -43,7 +49,7 @@ func TestPool_Capacity(t *testing.T) {
     }
 
     extra := pool.Get()
-    assert.Equal(t, size, extra.(int))
+    assertEqual(t, size, extra.(int))
 
     for _, item := range items {
         pool.Put(item)
@@ -52,7 +58,7 @@ func TestPool_Capacity(t *testing.T) {
     pool.Put(extra)
 
     for _, item := range items {
-        assert.Equal(t, item.(int), pool.Get().(int))
+        assertEqual(t, item.(int), pool.Get().(int))
     }
 }
 
@@ -63,10 +69,10 @@ func TestPool_Lease(t *testing.T) {
     pool.Put(pool.Get())
 
     elm := pool.Get()
-    assert.Equal(t, 0, elm.(int))
+    assertEqual(t, 0, elm.(int))
     pool.Put(elm)
 
     time.Sleep(time.Millisecond * 22)
-    assert.Equal(t, 1, pool.Get().(int))
+    assertEqual(t, 1, pool.Get().(int))
 }
 
