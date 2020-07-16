@@ -70,6 +70,14 @@ func (p *Pool) Put(elem interface{}) {
     return
 }
 
+func (p *Pool) Len() int {
+    return len(p.items)
+}
+
+func (p *Pool) Cap() int {
+    return cap(p.items)
+}
+
 func (p *Pool) ReleaseAll() {
     close(p.items)
     for item := range p.items {

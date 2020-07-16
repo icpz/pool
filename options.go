@@ -12,9 +12,9 @@ func OptLeaseMS(l int64) Option {
     }
 }
 
-func OptMaxSize(maxSize int) Option {
+func OptCapacity(capacity int) Option {
     return func (p *Pool) {
-        p.items = make(chan *poolItem, maxSize)
+        p.items = make(chan *poolItem, capacity)
     }
 }
 
